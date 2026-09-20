@@ -1,0 +1,6 @@
+node_modules/
+pgdata/
+database_key.json
+.env
+*.xlsx
+*.csv
