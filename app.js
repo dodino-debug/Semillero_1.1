@@ -67,35 +67,35 @@ if (mobileDrawerBackdrop) mobileDrawerBackdrop.addEventListener('click', () => t
 
 // Chart Setup
 Chart.defaults.font.family = "'Plus Jakarta Sans', sans-serif";
-Chart.defaults.color = '#64748b';
+Chart.defaults.color = '#526358';
 
 const createChartOptions = (showLegend = false) => ({
     responsive: true, maintainAspectRatio: false,
     plugins: {
         legend: { display: showLegend, position: 'top', labels: { usePointStyle: true, boxWidth: 6 } },
-        tooltip: { backgroundColor: '#1e293b', padding: 12 }
+        tooltip: { backgroundColor: '#233e2d', padding: 12 }
     },
-    scales: { y: { grid: { color: '#f1f5f9' }, border: { display: false } }, x: { grid: { display: false }, border: { display: false } } }
+    scales: { y: { grid: { color: '#d6ddcf' }, border: { display: false } }, x: { grid: { display: false }, border: { display: false } } }
 });
 
 const chartSuelo = new Chart(document.getElementById('chartSuelo').getContext('2d'), {
     type: 'line',
     data: { labels: [], datasets: [
-        { label: 'Suelo 1', data: [], borderColor: '#3b82f6', backgroundColor: 'rgba(59, 130, 246, 0.1)', fill: true, tension: 0.4 },
-        { label: 'Suelo 2', data: [], borderColor: '#06b6d4', backgroundColor: 'rgba(6, 182, 212, 0.1)', fill: true, tension: 0.4 }
+        { label: 'Suelo 1', data: [], borderColor: '#346b94', backgroundColor: 'rgba(52, 107, 148, 0.1)', fill: true, tension: 0.4 },
+        { label: 'Suelo 2', data: [], borderColor: '#248480', backgroundColor: 'rgba(36, 132, 128, 0.1)', fill: true, tension: 0.4 }
     ]},
     options: createChartOptions(true)
 });
 
 const chartAire = new Chart(document.getElementById('chartAire').getContext('2d'), {
     type: 'line',
-    data: { labels: [], datasets: [{ label: 'Humedad', data: [], borderColor: '#10b981', backgroundColor: 'rgba(16, 185, 129, 0.1)', fill: true, tension: 0.4 }] },
+    data: { labels: [], datasets: [{ label: 'Humedad', data: [], borderColor: '#33805a', backgroundColor: 'rgba(51, 128, 90, 0.1)', fill: true, tension: 0.4 }] },
     options: createChartOptions()
 });
 
 const chartTemp = new Chart(document.getElementById('chartTemp').getContext('2d'), {
     type: 'line',
-    data: { labels: [], datasets: [{ label: 'Temp', data: [], borderColor: '#f59e0b', backgroundColor: 'rgba(245, 158, 11, 0.1)', fill: true, tension: 0.4 }] },
+    data: { labels: [], datasets: [{ label: 'Temp', data: [], borderColor: '#ac621f', backgroundColor: 'rgba(172, 98, 31, 0.1)', fill: true, tension: 0.4 }] },
     options: createChartOptions()
 });
 
@@ -241,39 +241,42 @@ function startListening(view) {
     });
 }
 
-// Escuchar Estado en Vivo del ESP32
-const statusDocRef = doc(db, "estado", "dispositivo");
-onSnapshot(statusDocRef, (docSnap) => {
-    const banner = document.getElementById('esp32-status-banner');
-    const liveIndicator = document.getElementById('live-indicator');
-    const pingIndicator = document.getElementById('ping-indicator');
+// Estado del ESP32 segun la ultima comunicacion registrada por el puente.
+const offlineAfterMs = 15_000;
+const statusDocRef = doc(db, 'estado', 'dispositivo');
+let deviceStatus = null;
+
+function renderDeviceStatus() {
+    const lastSeen = deviceStatus?.lastSeen?.toDate();
+    const age = lastSeen ? Date.now() - lastSeen.getTime() : Infinity;
+    const online = deviceStatus?.online === true && age >= 0 && age < offlineAfterMs;
+
+    document.getElementById('esp32-status-banner').classList.toggle('hidden', online);
+    document.getElementById('live-indicator').className = online
+        ? 'relative inline-flex rounded-full h-3 w-3 bg-emerald-500'
+        : 'relative inline-flex rounded-full h-3 w-3 bg-red-500';
+    document.getElementById('ping-indicator').className = online
+        ? 'animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75'
+        : 'hidden';
+
     const liveText = document.getElementById('live-text');
-    
-    if (docSnap.exists() && banner) {
-        const status = docSnap.data();
-        if (status.online) {
-            banner.classList.add('hidden');
-            if (liveIndicator) {
-                liveIndicator.className = 'relative inline-flex rounded-full h-3 w-3 bg-emerald-500';
-                pingIndicator.className = 'animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75';
-                liveText.innerText = 'En Vivo';
-                liveText.className = 'text-sm font-semibold text-slate-600';
-            }
-        } else {
-            banner.classList.remove('hidden');
-            if (liveIndicator) {
-                liveIndicator.className = 'relative inline-flex rounded-full h-3 w-3 bg-red-500';
-                pingIndicator.className = 'hidden';
-                liveText.innerText = 'Fuera de Línea';
-                liveText.className = 'text-sm font-semibold text-red-500';
-            }
-            const lastSeen = status.lastSeen ? status.lastSeen.toDate() : null;
-            if (lastSeen) {
-                document.getElementById('last-seen-label').innerText = `Última vez visto: ${lastSeen.toLocaleTimeString('es-CO')}`;
-            }
-        }
-    }
+    liveText.innerText = online ? 'En vivo' : 'Fuera de línea';
+    liveText.className = online ? 'text-sm font-semibold text-slate-600' : 'text-sm font-semibold text-red-500';
+    document.getElementById('last-seen-label').innerText = lastSeen
+        ? `Último contacto: ${lastSeen.toLocaleString('es-CO')}`
+        : 'Sin registro de contacto';
+}
+
+onSnapshot(statusDocRef, (docSnap) => {
+    deviceStatus = docSnap.exists() ? docSnap.data() : null;
+    renderDeviceStatus();
+}, (error) => {
+    console.error('Error consultando el estado del ESP32:', error);
+    deviceStatus = null;
+    renderDeviceStatus();
 });
+
+setInterval(renderDeviceStatus, 1000);
 
 // Excel Export Button Action
 const btnExportar = document.getElementById('btn-exportar');
@@ -412,9 +415,9 @@ onSnapshot(bombaDocRef, (docSnap) => {
         if (textBombaStatus) {
             textBombaStatus.innerText = encendida ? 'Activo' : 'Inactivo';
             if (encendida) {
-                textBombaStatus.className = 'text-xl font-bold text-emerald-600 transition-all duration-300';
+                textBombaStatus.className = 'text-sm font-medium text-emerald-600 transition-all duration-300';
             } else {
-                textBombaStatus.className = 'text-xl font-bold text-slate-700 transition-all duration-300';
+                textBombaStatus.className = 'text-sm font-medium text-slate-700 transition-all duration-300';
             }
         }
         
@@ -423,7 +426,7 @@ onSnapshot(bombaDocRef, (docSnap) => {
             badgeBomba.innerText = encendida ? 'Encendida' : 'Apagada';
             badgeBomba.className = encendida 
                 ? 'text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-600 animate-pulse transition-all duration-300'
-                : 'text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-500 transition-all duration-300';
+                : 'text-[10px] font-bold px-2 py-0.5 rounded-full surface-muted text-slate-500 transition-all duration-300';
         }
         
         // Sincronizar los iconos y el color de fondo/bordes de la tarjeta
@@ -431,11 +434,11 @@ onSnapshot(bombaDocRef, (docSnap) => {
             if (encendida) {
                 iconBomba.setAttribute('data-lucide', 'droplet');
                 if (iconBgBomba) iconBgBomba.className = 'p-3 bg-emerald-50 rounded-2xl text-emerald-600 transition-all duration-300';
-                if (cardBomba) cardBomba.className = 'glass-card p-6 rounded-3xl border border-emerald-200 shadow-md shadow-emerald-100/50 flex flex-col justify-between transition-all duration-300';
+                if (cardBomba) cardBomba.className = 'glass-card p-4 rounded-2xl border border-emerald-200 shadow-md shadow-emerald-100/50 flex flex-col justify-between transition-all duration-300';
             } else {
                 iconBomba.setAttribute('data-lucide', 'droplet-off');
-                if (iconBgBomba) iconBgBomba.className = 'p-3 bg-slate-50 rounded-2xl text-slate-400 transition-all duration-300';
-                if (cardBomba) cardBomba.className = 'glass-card p-6 rounded-3xl border border-slate-100 flex flex-col justify-between transition-all duration-300';
+                if (iconBgBomba) iconBgBomba.className = 'p-3 surface-muted rounded-2xl text-slate-600 transition-all duration-300';
+                if (cardBomba) cardBomba.className = 'glass-card p-4 rounded-2xl border border-[#d4dccf] flex flex-col justify-between transition-all duration-300';
             }
             
             // Forzar a Lucide a procesar el nuevo atributo data-lucide

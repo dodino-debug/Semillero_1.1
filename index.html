@@ -4,32 +4,44 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Vitrinas IOT | Smart Monitor</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="./tailwind.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
-    <link rel="icon" href="/img/granja-inteligente.png">
+    <link rel="icon" type="image/png" href="./img/granja-inteligente.png">
 
     <style>
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #f8fafc; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #e4ebe1; }
         .glass-card {
-            background: rgba(255, 255, 255, 0.8);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.4);
-            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.05);
+            background: #f4f2e8;
+            border: 1px solid #d4dccf;
+            box-shadow: 0 8px 32px rgba(35, 62, 45, 0.08);
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
+        .sensor-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 1px;
+            overflow: hidden;
+            background: #d4dccf;
+        }
+        .sensor-reading { background: #f4f2e8; }
+        @media (min-width: 1200px) {
+            .sensor-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+        }
+        .navigation-surface { background: #dce7d9; }
+        .surface-muted { background: #e6ebde; }
         .sidebar-link {
             transition: all 0.2s;
             cursor: pointer;
         }
         .sidebar-link.active {
-            background: #eff6ff;
-            color: #2563eb;
-            border-right: 4px solid #2563eb;
+            background: #c6ddc4;
+            color: #22583b;
+            border-right: 4px solid #22583b;
         }
         .gradient-text {
-            background: linear-gradient(135deg, #10b981 0%, #3b82f6 100%);
+            background: linear-gradient(135deg, #236245 0%, #2c6472 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
@@ -51,8 +63,8 @@
 <body class="min-h-screen flex flex-col lg:flex-row text-slate-800">
     
     <!-- Mobile Header -->
-    <div class="lg:hidden w-full bg-white border-b border-slate-200 p-4 flex items-center justify-between sticky top-0 z-40">
-        <button id="mobile-menu-btn" class="p-2 text-slate-600 hover:bg-slate-100 rounded-xl transition-all">
+    <div class="lg:hidden w-full navigation-surface border-b border-[#c3d2c1] p-4 flex items-center justify-between sticky top-0 z-40">
+        <button id="mobile-menu-btn" class="p-2 text-slate-600 hover:bg-[#cfdfcc] rounded-xl transition-all">
             <i data-lucide="menu" class="w-6 h-6"></i>
         </button>
         <h1 class="text-xl font-bold tracking-tighter gradient-text">Vitrinas IOT</h1>
@@ -64,10 +76,10 @@
         <!-- Backdrop -->
         <div id="mobile-drawer-backdrop" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm"></div>
         <!-- Drawer Content -->
-        <aside id="mobile-drawer-content" class="fixed top-0 bottom-0 left-0 w-72 bg-white flex flex-col shadow-2xl transition-transform transform -translate-x-full duration-300">
-            <div class="p-6 flex items-center justify-between border-b border-slate-100">
+        <aside id="mobile-drawer-content" class="fixed top-0 bottom-0 left-0 w-72 navigation-surface flex flex-col shadow-2xl transition-transform transform -translate-x-full duration-300">
+            <div class="p-6 flex items-center justify-between border-b border-[#d4dccf]">
                 <h1 class="text-xl font-bold tracking-tighter gradient-text">Vitrinas IOT</h1>
-                <button id="mobile-menu-close" class="p-2 text-slate-600 hover:bg-slate-100 rounded-xl transition-all">
+                <button id="mobile-menu-close" class="p-2 text-slate-600 hover:bg-[#cfdfcc] rounded-xl transition-all">
                     <i data-lucide="x" class="w-5 h-5"></i>
                 </button>
             </div>
@@ -75,8 +87,8 @@
             <nav class="flex-1 px-4 py-6 space-y-8 overflow-y-auto">
                 <!-- General Section -->
                 <div>
-                    <p class="px-4 text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">General</p>
-                    <button class="sidebar-link active flex items-center w-full gap-3 px-4 py-3 rounded-xl font-semibold text-slate-600 hover:bg-slate-50 transition-all active:scale-95" data-view="all">
+                    <p class="px-4 text-xs font-bold text-slate-600 uppercase tracking-widest mb-4">General</p>
+                    <button class="sidebar-link active flex items-center w-full gap-3 px-4 py-3 rounded-xl font-semibold text-slate-600 hover:bg-[#cfdfcc] transition-all active:scale-95" data-view="all">
                         <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
                         Resumen Global
                     </button>
@@ -84,41 +96,24 @@
 
                 <!-- Brachiaria Section -->
                 <div>
-                    <p class="px-4 text-xs font-bold text-emerald-500 uppercase tracking-widest mb-2">B. brizantha</p>
-                    <p class="px-4 text-[10px] text-slate-400 mb-4 italic">Vitrinas 1 - 3</p>
+                    <p class="px-4 text-xs font-bold text-emerald-800 uppercase tracking-widest mb-2">B. brizantha</p>
+                    <p class="px-4 text-[10px] text-slate-600 mb-4 italic">Vitrinas 1 - 3</p>
                     <div class="space-y-1">
-                        <button class="sidebar-link flex items-center w-full gap-3 px-4 py-2 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-50 transition-all active:scale-95" data-view="1">
+                        <button class="sidebar-link flex items-center w-full gap-3 px-4 py-2 rounded-lg text-sm font-medium text-slate-600 hover:bg-[#cfdfcc] transition-all active:scale-95" data-view="1">
                             <i data-lucide="leaf" class="w-4 h-4 text-emerald-400"></i> Vitrina 1
                         </button>
-                        <button class="sidebar-link flex items-center w-full gap-3 px-4 py-2 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-50 transition-all active:scale-95" data-view="2">
+                        <button class="sidebar-link flex items-center w-full gap-3 px-4 py-2 rounded-lg text-sm font-medium text-slate-600 hover:bg-[#cfdfcc] transition-all active:scale-95" data-view="2">
                             <i data-lucide="leaf" class="w-4 h-4 text-emerald-400"></i> Vitrina 2
                         </button>
-                        <button class="sidebar-link flex items-center w-full gap-3 px-4 py-2 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-50 transition-all active:scale-95" data-view="3">
+                        <button class="sidebar-link flex items-center w-full gap-3 px-4 py-2 rounded-lg text-sm font-medium text-slate-600 hover:bg-[#cfdfcc] transition-all active:scale-95" data-view="3">
                             <i data-lucide="leaf" class="w-4 h-4 text-emerald-400"></i> Vitrina 3
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Zea Mays Section -->
-                <div>
-                    <p class="px-4 text-xs font-bold text-orange-500 uppercase tracking-widest mb-2">Zea mays</p>
-                    <p class="px-4 text-[10px] text-slate-400 mb-4 italic">Vitrinas 4 - 6</p>
-                    <div class="space-y-1">
-                        <button class="sidebar-link flex items-center w-full gap-3 px-4 py-2 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-50 transition-all active:scale-95" data-view="4">
-                            <i data-lucide="sprout" class="w-4 h-4 text-orange-400"></i> Vitrina 4
-                        </button>
-                        <button class="sidebar-link flex items-center w-full gap-3 px-4 py-2 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-50 transition-all active:scale-95" data-view="5">
-                            <i data-lucide="sprout" class="w-4 h-4 text-orange-400"></i> Vitrina 5
-                        </button>
-                        <button class="sidebar-link flex items-center w-full gap-3 px-4 py-2 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-50 transition-all active:scale-95" data-view="6">
-                            <i data-lucide="sprout" class="w-4 h-4 text-orange-400"></i> Vitrina 6
                         </button>
                     </div>
                 </div>
             </nav>
 
-            <div class="p-8 border-t border-slate-100">
-                <div class="bg-slate-50 rounded-2xl p-4 flex items-center gap-3">
+            <div class="p-8 border-t border-[#d4dccf]">
+                <div class="surface-muted rounded-2xl p-4 flex items-center gap-3">
                     <div class="bg-emerald-100 p-2 rounded-lg text-emerald-600">
                         <i data-lucide="shield-check" class="w-5 h-5"></i>
                     </div>
@@ -132,7 +127,7 @@
     </div>
 
     <!-- Desktop Sidebar -->
-    <aside class="w-72 bg-white border-r border-slate-200 flex flex-col h-screen sticky top-0 hidden lg:flex">
+    <aside class="w-60 shrink-0 navigation-surface border-r border-[#c3d2c1] flex flex-col h-screen sticky top-0 hidden lg:flex">
         <div class="p-8">
             <h1 class="text-2xl font-bold tracking-tighter gradient-text">Vitrinas IOT</h1>
         </div>
@@ -140,8 +135,8 @@
         <nav class="flex-1 px-4 space-y-8 overflow-y-auto">
             <!-- General Section -->
             <div>
-                <p class="px-4 text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">General</p>
-                <button class="sidebar-link active flex items-center w-full gap-3 px-4 py-3 rounded-xl font-semibold text-slate-600 hover:bg-slate-50 transition-all active:scale-95" data-view="all">
+                <p class="px-4 text-xs font-bold text-slate-600 uppercase tracking-widest mb-4">General</p>
+                <button class="sidebar-link active flex items-center w-full gap-3 px-4 py-3 rounded-xl font-semibold text-slate-600 hover:bg-[#cfdfcc] transition-all active:scale-95" data-view="all">
                     <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
                     Resumen Global
                 </button>
@@ -149,41 +144,24 @@
 
             <!-- Brachiaria Section -->
             <div>
-                <p class="px-4 text-xs font-bold text-emerald-500 uppercase tracking-widest mb-2">B. brizantha</p>
-                <p class="px-4 text-[10px] text-slate-400 mb-4 italic">Vitrinas 1 - 3</p>
+                <p class="px-4 text-xs font-bold text-emerald-800 uppercase tracking-widest mb-2">B. brizantha</p>
+                <p class="px-4 text-[10px] text-slate-600 mb-4 italic">Vitrinas 1 - 3</p>
                 <div class="space-y-1">
-                    <button class="sidebar-link flex items-center w-full gap-3 px-4 py-2 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-50 transition-all active:scale-95" data-view="1">
+                    <button class="sidebar-link flex items-center w-full gap-3 px-4 py-2 rounded-lg text-sm font-medium text-slate-600 hover:bg-[#cfdfcc] transition-all active:scale-95" data-view="1">
                         <i data-lucide="leaf" class="w-4 h-4 text-emerald-400"></i> Vitrina 1
                     </button>
-                    <button class="sidebar-link flex items-center w-full gap-3 px-4 py-2 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-50 transition-all active:scale-95" data-view="2">
+                    <button class="sidebar-link flex items-center w-full gap-3 px-4 py-2 rounded-lg text-sm font-medium text-slate-600 hover:bg-[#cfdfcc] transition-all active:scale-95" data-view="2">
                         <i data-lucide="leaf" class="w-4 h-4 text-emerald-400"></i> Vitrina 2
                     </button>
-                    <button class="sidebar-link flex items-center w-full gap-3 px-4 py-2 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-50 transition-all active:scale-95" data-view="3">
+                    <button class="sidebar-link flex items-center w-full gap-3 px-4 py-2 rounded-lg text-sm font-medium text-slate-600 hover:bg-[#cfdfcc] transition-all active:scale-95" data-view="3">
                         <i data-lucide="leaf" class="w-4 h-4 text-emerald-400"></i> Vitrina 3
-                    </button>
-                </div>
-            </div>
-
-            <!-- Zea Mays Section -->
-            <div>
-                <p class="px-4 text-xs font-bold text-orange-500 uppercase tracking-widest mb-2">Zea mays</p>
-                <p class="px-4 text-[10px] text-slate-400 mb-4 italic">Vitrinas 4 - 6</p>
-                <div class="space-y-1">
-                    <button class="sidebar-link flex items-center w-full gap-3 px-4 py-2 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-50 transition-all active:scale-95" data-view="4">
-                        <i data-lucide="sprout" class="w-4 h-4 text-orange-400"></i> Vitrina 4
-                    </button>
-                    <button class="sidebar-link flex items-center w-full gap-3 px-4 py-2 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-50 transition-all active:scale-95" data-view="5">
-                        <i data-lucide="sprout" class="w-4 h-4 text-orange-400"></i> Vitrina 5
-                    </button>
-                    <button class="sidebar-link flex items-center w-full gap-3 px-4 py-2 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-50 transition-all active:scale-95" data-view="6">
-                        <i data-lucide="sprout" class="w-4 h-4 text-orange-400"></i> Vitrina 6
                     </button>
                 </div>
             </div>
         </nav>
 
-        <div class="p-8 border-t border-slate-100">
-            <div class="bg-slate-50 rounded-2xl p-4 flex items-center gap-3">
+        <div class="p-8 border-t border-[#d4dccf]">
+            <div class="surface-muted rounded-2xl p-4 flex items-center gap-3">
                 <div class="bg-emerald-100 p-2 rounded-lg text-emerald-600">
                     <i data-lucide="shield-check" class="w-5 h-5"></i>
                 </div>
@@ -196,10 +174,10 @@
     </aside>
 
     <!-- Main Content -->
-    <main class="flex-1 p-4 lg:p-10 overflow-y-auto">
+    <main class="flex-1 min-w-0 w-full max-w-[90rem] mx-auto p-4 sm:p-6 xl:p-8">
         
         <!-- Connection Status Banner -->
-        <div id="esp32-status-banner" class="mb-6 hidden transition-all duration-300">
+        <div id="esp32-status-banner" class="mb-4 hidden transition-all duration-300">
             <div class="bg-red-50 border border-red-200 text-red-700 px-6 py-4 rounded-3xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm">
                 <div class="flex items-center gap-3">
                     <div class="bg-red-100 p-2 rounded-xl text-red-600 animate-pulse">
@@ -216,129 +194,130 @@
             </div>
         </div>
 
-        <!-- Header -->
-        <header class="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-4">
+        <header class="border-b border-[#c3d2c1] pb-4 mb-5 flex flex-wrap items-end justify-between gap-3">
             <div>
-                <h2 class="text-3xl font-bold tracking-tight mb-2" id="current-title">Resumen Global</h2>
-                <p class="text-slate-500 font-medium flex items-center gap-2 flex-wrap">
-                    <i data-lucide="clock" class="w-4 h-4"></i>
+                <h2 class="text-2xl sm:text-3xl font-bold tracking-tight" id="current-title">Resumen Global</h2>
+                <div class="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-600">
+                    <div class="inline-flex items-center gap-2">
+                        <span class="relative flex h-3 w-3">
+                            <span id="ping-indicator" class="hidden"></span>
+                            <span id="live-indicator" class="relative inline-flex rounded-full h-3 w-3 bg-slate-200"></span>
+                        </span>
+                        <span id="live-text" class="text-sm font-semibold text-slate-600">Verificando conexi&oacute;n</span>
+                    </div>
                     <span id="last-update">Sincronizando...</span>
-                    <span class="mx-2 text-slate-300">•</span>
-                    <span id="species-badge" class="px-3 py-1 bg-slate-100 text-slate-600 rounded-full text-xs font-bold">Varias Especies</span>
-                </p>
-            </div>
-            
-            <div class="flex items-center gap-4 flex-wrap w-full md:w-auto">
-                <button id="btn-exportar" class="flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-5 py-2.5 rounded-full shadow-md shadow-emerald-600/10 hover:shadow-emerald-700/20 active:scale-95 transition-all text-sm w-full sm:w-auto">
-                    <i data-lucide="file-spreadsheet" class="w-4 h-4"></i>
-                    Exportar Excel
-                </button>
-
-                <div class="flex items-center justify-center gap-2 bg-white px-4 py-2.5 rounded-full shadow-sm border border-slate-100 w-full sm:w-auto">
-                    <span class="relative flex h-3 w-3">
-                        <span id="ping-indicator" class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                        <span id="live-indicator" class="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
-                    </span>
-                    <span id="live-text" class="text-sm font-semibold text-slate-600">En Vivo</span>
+                    <span id="species-badge">Varias Especies</span>
                 </div>
             </div>
+            <button id="btn-exportar" class="flex items-center justify-center gap-2 bg-emerald-700 hover:bg-emerald-800 text-white font-semibold px-5 py-2.5 rounded-xl active:scale-95 transition-all text-sm">
+                <i data-lucide="file-spreadsheet" class="w-4 h-4"></i>
+                Exportar Excel
+            </button>
         </header>
 
-        <!-- Stats -->
-        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-6 mb-10">
-            <!-- Soil Moisture 1 Card -->
-            <div class="glass-card p-6 rounded-3xl border border-slate-100" id="card-suelo1">
-                <div class="flex justify-between items-start mb-4">
-                    <div class="p-3 bg-blue-50 rounded-2xl text-blue-600" id="icon-bg-suelo1"><i data-lucide="droplets"></i></div>
-                    <span id="badge-suelo1" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-500">Normal</span>
-                </div>
-                <h3 class="text-slate-500 text-xs font-bold uppercase tracking-wider mb-1">Humedad Suelo 1</h3>
-                <div class="flex items-baseline gap-1">
-                    <span class="text-3xl font-bold" id="val-suelo1">--</span>
-                    <span class="text-slate-400 text-sm">pts</span>
-                </div>
-            </div>
-            
-            <!-- Soil Moisture 2 Card -->
-            <div class="glass-card p-6 rounded-3xl border border-slate-100" id="card-suelo2">
-                <div class="flex justify-between items-start mb-4">
-                    <div class="p-3 bg-cyan-50 rounded-2xl text-cyan-600" id="icon-bg-suelo2"><i data-lucide="droplet"></i></div>
-                    <span id="badge-suelo2" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-500">Normal</span>
-                </div>
-                <h3 class="text-slate-500 text-xs font-bold uppercase tracking-wider mb-1">Humedad Suelo 2</h3>
-                <div class="flex items-baseline gap-1">
-                    <span class="text-3xl font-bold" id="val-suelo2">--</span>
-                    <span class="text-slate-400 text-sm">pts</span>
-                </div>
-            </div>
-            
-            <!-- Air Humidity Card -->
-            <div class="glass-card p-6 rounded-3xl border border-slate-100" id="card-aire">
-                <div class="flex justify-between items-start mb-4">
-                    <div class="p-3 bg-emerald-50 rounded-2xl text-emerald-600" id="icon-bg-aire"><i data-lucide="wind"></i></div>
-                    <span id="badge-aire" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-500">Normal</span>
-                </div>
-                <h3 class="text-slate-500 text-xs font-bold uppercase tracking-wider mb-1">Humedad Aire</h3>
-                <div class="flex items-baseline gap-1">
-                    <span class="text-3xl font-bold" id="val-aire">--</span>
-                    <span class="text-slate-400 text-sm">% HR</span>
-                </div>
-            </div>
-            
-            <!-- Temperature Card -->
-            <div class="glass-card p-6 rounded-3xl border border-slate-100" id="card-temp">
-                <div class="flex justify-between items-start mb-4">
-                    <div class="p-3 bg-orange-50 rounded-2xl text-orange-600" id="icon-bg-temp"><i data-lucide="thermometer"></i></div>
-                    <span id="badge-temp" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-500">Normal</span>
-                </div>
-                <h3 class="text-slate-500 text-xs font-bold uppercase tracking-wider mb-1">Temperatura</h3>
-                <div class="flex items-baseline gap-1">
-                    <span class="text-3xl font-bold" id="val-temp">--</span>
-                    <span class="text-slate-400 text-sm">°C</span>
-                </div>
-            </div>
-
-            <!-- Irrigation Pump Control Card -->
-            <div class="glass-card p-6 rounded-3xl border border-slate-100 flex flex-col justify-between" id="card-bomba">
-                <div class="flex justify-between items-start mb-4">
-                    <div class="p-3 bg-slate-50 rounded-2xl text-slate-400 transition-all duration-300" id="icon-bg-bomba">
-                        <i data-lucide="droplet-off" id="icon-bomba"></i>
+        <section class="mb-5" aria-labelledby="lecturas-title">
+            <h2 id="lecturas-title" class="mb-3 text-lg font-bold">Lecturas de sensores</h2>
+            <div class="sensor-grid rounded-2xl border border-[#d4dccf]">
+                <!-- Soil Moisture 1 Card -->
+                <div class="sensor-reading min-w-0 p-3 sm:p-4" id="card-suelo1">
+                    <h3 class="flex items-start gap-2 text-xs font-semibold text-slate-700">
+                        <span class="text-blue-600 shrink-0" id="icon-bg-suelo1"><i data-lucide="droplets" class="w-4 h-4"></i></span>
+                        Humedad Suelo 1
+                    </h3>
+                    <div class="mt-2 flex flex-wrap items-baseline gap-x-1">
+                        <span class="text-2xl sm:text-3xl font-bold tabular-nums" id="val-suelo1">--</span>
+                        <span class="text-slate-600 text-sm">pts</span>
                     </div>
-                    <span id="badge-bomba" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-500 transition-all duration-300">Apagada</span>
+                    <div class="mt-1"><span id="badge-suelo1" class="text-[10px] font-bold px-2 py-0.5 rounded-full surface-muted text-slate-500">Normal</span></div>
                 </div>
-                <h3 class="text-slate-500 text-xs font-bold uppercase tracking-wider mb-1">Bomba de Riego</h3>
-                <div class="flex items-center justify-between mt-2">
-                    <span class="text-xl font-bold text-slate-700 transition-all duration-300" id="text-bomba-status">Inactivo</span>
-                    <!-- Tailwind Toggle Switch -->
+
+                <!-- Soil Moisture 2 Card -->
+                <div class="sensor-reading min-w-0 p-3 sm:p-4" id="card-suelo2">
+                    <h3 class="flex items-start gap-2 text-xs font-semibold text-slate-700">
+                        <span class="text-cyan-600 shrink-0" id="icon-bg-suelo2"><i data-lucide="droplet" class="w-4 h-4"></i></span>
+                        Humedad Suelo 2
+                    </h3>
+                    <div class="mt-2 flex flex-wrap items-baseline gap-x-1">
+                        <span class="text-2xl sm:text-3xl font-bold tabular-nums" id="val-suelo2">--</span>
+                        <span class="text-slate-600 text-sm">pts</span>
+                    </div>
+                    <div class="mt-1"><span id="badge-suelo2" class="text-[10px] font-bold px-2 py-0.5 rounded-full surface-muted text-slate-500">Normal</span></div>
+                </div>
+
+                <!-- Air Humidity Card -->
+                <div class="sensor-reading min-w-0 p-3 sm:p-4" id="card-aire">
+                    <h3 class="flex items-start gap-2 text-xs font-semibold text-slate-700">
+                        <span class="text-emerald-600 shrink-0" id="icon-bg-aire"><i data-lucide="wind" class="w-4 h-4"></i></span>
+                        Humedad Aire
+                    </h3>
+                    <div class="mt-2 flex flex-wrap items-baseline gap-x-1">
+                        <span class="text-2xl sm:text-3xl font-bold tabular-nums" id="val-aire">--</span>
+                        <span class="text-slate-600 text-sm">% HR</span>
+                    </div>
+                    <div class="mt-1"><span id="badge-aire" class="text-[10px] font-bold px-2 py-0.5 rounded-full surface-muted text-slate-500">Normal</span></div>
+                </div>
+
+                <!-- Temperature Card -->
+                <div class="sensor-reading min-w-0 p-3 sm:p-4" id="card-temp">
+                    <h3 class="flex items-start gap-2 text-xs font-semibold text-slate-700">
+                        <span class="text-orange-600 shrink-0" id="icon-bg-temp"><i data-lucide="thermometer" class="w-4 h-4"></i></span>
+                        Temperatura
+                    </h3>
+                    <div class="mt-2 flex flex-wrap items-baseline gap-x-1">
+                        <span class="text-2xl sm:text-3xl font-bold tabular-nums" id="val-temp">--</span>
+                        <span class="text-slate-600 text-sm">°C</span>
+                    </div>
+                    <div class="mt-1"><span id="badge-temp" class="text-[10px] font-bold px-2 py-0.5 rounded-full surface-muted text-slate-500">Normal</span></div>
+                </div>
+            </div>
+        </section>
+
+        <section class="mb-5" aria-labelledby="riego-title">
+            <div class="glass-card p-4 rounded-2xl border border-[#d4dccf] flex flex-col justify-between" id="card-bomba">
+                <div class="flex flex-wrap items-center justify-between gap-x-6 gap-y-3">
+                    <div class="flex items-center gap-3">
+                        <div class="p-3 surface-muted rounded-2xl text-slate-600 transition-all duration-300" id="icon-bg-bomba">
+                            <i data-lucide="droplet-off" id="icon-bomba"></i>
+                        </div>
+                        <div>
+                            <h2 id="riego-title" class="text-base font-bold">Bomba de riego</h2>
+                            <div class="flex flex-wrap items-center gap-2">
+                                <span class="text-sm font-medium text-slate-700 transition-all duration-300" id="text-bomba-status">Inactivo</span>
+                                <span id="badge-bomba" class="text-[10px] font-bold px-2 py-0.5 rounded-full surface-muted text-slate-500 transition-all duration-300">Apagada</span>
+                            </div>
+                        </div>
+                    </div>
                     <label class="relative inline-flex items-center cursor-pointer select-none">
-                        <input type="checkbox" id="switch-bomba" class="sr-only peer">
+                        <input type="checkbox" id="switch-bomba" aria-labelledby="riego-title" class="sr-only peer">
                         <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
                     </label>
                 </div>
             </div>
-        </div>
+        </section>
 
-        <!-- Charts -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <div class="glass-card p-8 rounded-[2rem] lg:col-span-2">
-                <h2 class="text-xl font-bold mb-8 flex items-center gap-2">
-                    <i data-lucide="activity" class="text-blue-500"></i> Histórico Combinado
-                </h2>
-                <div class="h-[350px]"><canvas id="chartSuelo"></canvas></div>
+        <section aria-labelledby="historico-title">
+            <h2 id="historico-title" class="mb-3 text-lg font-bold">Hist&oacute;rico de lecturas</h2>
+            <div class="grid grid-cols-1 xl:grid-cols-2 gap-3 sm:gap-4">
+                <div class="glass-card min-w-0 p-4 rounded-2xl xl:col-span-2">
+                    <h3 class="text-base font-bold mb-4 flex items-center gap-2">
+                        <i data-lucide="activity" class="text-blue-500"></i> Histórico Combinado
+                    </h3>
+                    <div class="h-60 sm:h-80"><canvas id="chartSuelo"></canvas></div>
+                </div>
+                <div class="glass-card min-w-0 p-4 rounded-2xl">
+                    <h3 class="text-base font-bold mb-4 flex items-center gap-2">
+                        <i data-lucide="cloud-rain" class="text-emerald-500"></i> Humedad Ambiental
+                    </h3>
+                    <div class="h-[250px]"><canvas id="chartAire"></canvas></div>
+                </div>
+                <div class="glass-card min-w-0 p-4 rounded-2xl">
+                    <h3 class="text-base font-bold mb-4 flex items-center gap-2">
+                        <i data-lucide="sun" class="text-orange-500"></i> Temperatura
+                    </h3>
+                    <div class="h-[250px]"><canvas id="chartTemp"></canvas></div>
+                </div>
             </div>
-            <div class="glass-card p-8 rounded-[2rem]">
-                <h2 class="text-xl font-bold mb-8 flex items-center gap-2">
-                    <i data-lucide="cloud-rain" class="text-emerald-500"></i> Humedad Ambiental
-                </h2>
-                <div class="h-[250px]"><canvas id="chartAire"></canvas></div>
-            </div>
-            <div class="glass-card p-8 rounded-[2rem]">
-                <h2 class="text-xl font-bold mb-8 flex items-center gap-2">
-                    <i data-lucide="sun" class="text-orange-500"></i> Temperatura
-                </h2>
-                <div class="h-[250px]"><canvas id="chartTemp"></canvas></div>
-            </div>
-        </div>
+        </section>
     </main>
 
     <!-- SheetJS (XLSX) library for client-side Excel exporting -->

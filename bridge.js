@@ -64,8 +64,7 @@ setInterval(async () => {
         .doc("dispositivo");
 
       await statusRef.set({
-        online: false,
-        lastSeen: admin.firestore.Timestamp.now()
+        online: false
       }, { merge: true });
 
       console.log(

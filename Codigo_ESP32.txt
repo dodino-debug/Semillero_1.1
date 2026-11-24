@@ -12,7 +12,7 @@ const char *password = "D1234567";     // <-- Reemplaza con tu contraseña
 
 // URL del Servidor Node.js (Bridge)
 // IMPORTANTE: Cambia "10.42.141.XXX" por la IP real que tiene tu PC ahora mismo en esa red.
-const char *serverName = "http://192.168.43.16:3000/api/datos";
+const char *serverName = "http://10.198.129.28:3000/api/datos";
 
 // =========================================================================
 // CONFIGURACIÓN DE SENSORES Y ACTUADORES
